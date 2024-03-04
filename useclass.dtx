@@ -1,0 +1,248 @@
+% \iffalse meta-comment
+% !TEX program = pdfLaTeX
+%
+% DO NOT REMOVE THE MARK MANUALLY (used in l3build) -> %^^A [L3BUILD_REPLACED_MARK]
+%
+%<*internal>
+\iffalse
+%</internal>
+%<*internal>
+\fi
+\begingroup
+  \def\nameofLaTeXe{LaTeX2e}
+\expandafter\endgroup\ifx\fmtname\nameofLaTeXe\else
+\csname fi\endcsname
+%</internal>
+%<*install>
+\input docstrip
+\keepsilent
+\askforoverwritefalse
+\preamble
+
+    Copyright (C) 2024 by HUANG Yuxi <useclass@hyxi.dev>
+
+    This work may be distributed and/or modified under the
+    conditions of the LaTeX Project Public License, either
+    version 1.3c of this license or (at your option) any later
+    version. This version of this license is in
+       https://www.latex-project.org/lppl/lppl-1-3c.txt
+    and the latest version of this license is in
+       https://www.latex-project.org/lppl.txt
+    and version 1.3c or later is part of all distributions of LaTeX
+    version 2008 or later.
+
+    This work has the LPPL maintenance status "maintained".
+
+    The Current Maintainer of this work is HUANG Yuxi.
+
+\endpreamble
+\postamble
+
+    This work consists of the files \jobname.dtx
+    and the derived files \jobname.sty and \jobname.ins.
+
+\endpostamble
+
+\generate
+  {
+%</install>
+%<*internal>
+    \usedir{source/latex/useclass}
+    \file{\jobname.ins}{\from{\jobname.dtx}{install}}
+%</internal>
+%<*install>
+    \usedir{tex/latex/useclass}
+    \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+  }
+\endbatchfile
+%</install>
+%<*internal>
+\fi
+%</internal>
+
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>\ProvidesExplPackage{useclass}
+%<package>  {[LATEST]}{[DEV]}{Use Classes as Packages} %^^A [L3BUILD_REPLACED_MARK]
+%<*driver>
+\documentclass{article}
+\usepackage{useclass}
+\useclass[full]{l3doc}
+\usepackage{mdframed}
+
+\providecommand{\pkgname}{\pkg{\jobname}}
+\begin{document}
+  \DocInput{\jobname.dtx}
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+% \title{The \pkgname.sty Package: Load Classes as Packages}
+% \author
+%   {
+%     Huang Yuxi
+%     \thanks{
+%       \textit{Huang} is his surname.
+%     }
+%     <^^A
+%     \href
+%       {mailto:useclass@hyxi.dev}
+%       {useclass@hyxi.dev}^^A
+%     >
+%   }
+% \date{[LATEST] \quad Version [DEV]} ^^A [L3BUILD_REPLACED_MARK]
+%
+
+% \maketitle
+%
+% \begin{mdframed}
+%   \textsf{TL;DR} \; Use \cs{useclass} to load a class with the same usage as \cs{usepackage}:
+%   \begin{verbatim}
+% \usepackage{useclass}
+% \useclass[full]{l3doc}
+%   \end{verbatim}
+% \end{mdframed}
+%
+% \tableofcontents
+%
+% \begin{documentation}
+%
+% \section{Introduction}
+%
+% \pkgname{} is a package that enables the usage of classes as packages. It was originally designed for the \cls{l3doc} class, which is employed for documenting \LaTeX{} code with numerous useful features. However, employing the \cls{l3doc} class as a package is not convenient when using the developing class as the style for the document. Therefore, this package provides a simple interface for utilizing classes as packages.
+% The package \pkgname{} was initially released on 2024-03-05, under the LaTeX Project Public License Version 1.3c^^A
+% \footnote{\url{https://www.latex-project.org/lppl/lppl-1-3c.txt}}
+% or later, and is maintained at \url{https://github.com/huangyxi/useclass}.
+%
+% \section{Usage}
+
+%
+% \begin{function}{\useclass}
+%   \begin{syntax}
+  %     \cs{useclass} \marg{class}
+%     \cs{useclass} \oarg{options} \marg{class}
+%   \end{syntax}
+%   Load class with options, where \meta{options} is the options for the class and \meta{class} is the class name without the extension.
+% \end{function}
+%
+% Example for a \file{dtx} file:
+% \begin{mdframed}
+%   \begin{verbatim}
+% % \iffalse
+% \documentclass{article}
+% \usepackage{l3doc}
+% \begin{document}
+%   \DocInput{\jobname.dtx}
+% \end{document}
+% % \fi
+% %
+% % \section{Implementation}
+% % \begin{variable}{\l_demo_tl}
+% %    \begin{macrocode}
+% \tl_new:N \l_demo_tl
+% %    \end{macrocode}
+% % \end{variable}
+%   \end{verbatim}
+% \end{mdframed}
+%
+% \end{documentation}
+%
+% \begin{implementation}
+%
+%
+% \section{\pkgname{} Implementation}
+%    \begin{macrocode}
+%<@@=useclass>
+%<*package>
+%    \end{macrocode}
+%
+%
+% \subsection{Variables}
+%
+% \begin{variable}{\@@_tempa_cs:w}
+% Temporary control sequence.
+%    \begin{macrocode}
+\cs_new_eq:NN \@@_tempa_cs:w ?
+%    \end{macrocode}
+% \end{variable}
+%
+% \subsection{Helpers}
+%
+% \begin{macro}{\@@_cs_swap:NN}
+% Define a helper function to swap two control sequences.
+%    \begin{macrocode}
+\cs_new:Npn \@@_cs_swap:NN #1 #2
+  {
+    \cs_set_eq:NN \@@_tempa_cs:w #1
+    \cs_set_eq:NN #1 #2
+    \cs_set_eq:NN #2 \@@_tempa_cs:w
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsection{Dependences loading}
+% \pkgname{} currently don't have any explicit dependences.
+%
+% \subsection{Patched Macros}
+%
+% \begin{macro}{\@@_LoadClass:n}
+% Patched \cs{LoadClass} to do nothing.
+%    \begin{macrocode}
+\cs_new:Npn \@@_LoadClass:n #1 {}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Before Loading Class}
+%
+% \begin{macro}{\@@_use_before:}
+% These are the things to do before loading class.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_use_before:
+  {
+    \@@_cs_swap:NN \LoadClass \@@_LoadClass:n
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Loading Class}
+%
+% \begin{macro}{\@@_use_class:nn}
+% Load class with options.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_use_class:nn #1 #2
+  {
+    \@fileswithoptions\@clsextension[#1]{#2}
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{After Loading Class}
+%
+% \begin{macro}{\@@_use_after:}
+% These are the things to do after loading class.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_use_after:
+  {
+    \@@_cs_swap:NN \LoadClass \@@_LoadClass:n
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{User Interface}
+% \begin{macro}{\useclass}
+% Load patch class with options.
+%    \begin{macrocode}
+\NewDocumentCommand {\useclass} { O{} m }
+  {
+    \@@_use_before:
+    \@@_use_class:nn {#1} {#2}
+    \@@_use_after:
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+
+% \end{implementation}
+% \PrintIndex
