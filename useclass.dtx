@@ -66,7 +66,7 @@
 %<*driver>
 \documentclass{article}
 \usepackage{useclass}
-\useclass[full]{l3doc}
+\useclass*[full]{l3doc}
 \usepackage{mdframed}
 
 \providecommand{\pkgname}{\pkg{\jobname}}
@@ -92,7 +92,7 @@
 %   }
 % \date{[LATEST] \quad Version [DEV]} ^^A [L3BUILD_REPLACED_MARK]
 %
-
+%
 % \maketitle
 %
 % \begin{mdframed}
@@ -115,14 +115,17 @@
 % or later, and is maintained at \url{https://github.com/huangyxi/useclass}.
 %
 % \section{Usage}
-
 %
-% \begin{function}{\useclass}
+% \begin{function}{\useclass, \useclass*}
 %   \begin{syntax}
-  %     \cs{useclass} \marg{class}
+%     \cs{useclass} \marg{class}
 %     \cs{useclass} \oarg{options} \marg{class}
+%     \cs{useclass*} \marg{class}
+%     \cs{useclass*} \oarg{options} \marg{class}
 %   \end{syntax}
 %   Load class with options, where \meta{options} is the options for the class and \meta{class} is the class name without the extension.
+%   When using the starred version \cs{useclass*}, the tokens, dimensions, and control sequences modified by the class will be saved before loading the class and restored after loading the class.
+% Currently, the starred version is only applicable to the \cls{l3doc} class.
 % \end{function}
 %
 % Example for a \file{dtx} file:
@@ -159,14 +162,66 @@
 %
 % \subsection{Variables}
 %
-% \begin{variable}{\@@_tempa_cs:w}
-% Temporary control sequence.
+% \begin{macro}{\c_@@_cs_name_tl}
+% Prefix of control sequence names for saving and restoring.
 %    \begin{macrocode}
+\tl_const:Nn \c_@@_cs_name_tl {@@_s_cs_}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\g_@@_tl_seq, \g_@@_dim_seq, \g_@@_cs_name_seq}
+% Sequnce of variables to save before, and restore after loading class.
+%    \begin{macrocode}
+\seq_new:N \g_@@_tl_seq
+\seq_new:N \g_@@_dim_seq
+\seq_new:N \g_@@_cs_name_seq
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_class_prop}
+% Temporary property list of class configuration.
+%    \begin{macrocode}
+\prop_new:N \l_@@_class_prop
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_csname_seq}
+% Temporary sequence of csnames of variables to save and restore.
+%    \begin{macrocode}
+\seq_new:N \l_@@_csname_seq
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_tmpa_tl, \l_@@_tmpb_tl, \l_@@_tmpa_dim, \@@_tempa_cs:w}
+% Temporary variables used in the implementation.
+%    \begin{macrocode}
+\tl_new:N \l_@@_tmpa_tl
+\tl_new:N \l_@@_tmpb_tl
+\dim_new:N \l_@@_tmpa_dim
 \cs_new_eq:NN \@@_tempa_cs:w ?
 %    \end{macrocode}
 % \end{variable}
 %
+%
 % \subsection{Helpers}
+%
+% \begin{macro}{\@@_prop_get_prop:NnN, \@@_prop_get_seq:NnN}
+% Since the values of \cs{c_@@_classes_prop} are token lists, we need to parse them to property.
+%    \begin{macrocode}
+% \cs_set_eq:NN \@@_prop_set_from_keyval:Nn \prop_set_from_keyval:Nn
+% \cs_generate_variant:Nn \@@_prop_set_from_keyval:Nn { No }
+\cs_new_protected:Npn \@@_prop_get_prop:NnN #1 #2 #3
+  {
+    \prop_get:NnN #1 {#2} \l_@@_tmpa_tl
+    \exp_args:NNo \prop_set_from_keyval:Nn #3 \l_@@_tmpa_tl
+  }
+\cs_new_protected:Npn \@@_prop_get_seq:NnN #1 #2 #3
+  {
+    \prop_get:NnN #1 {#2} \l_@@_tmpa_tl
+    \exp_args:NNo \seq_set_from_clist:Nn #3 \l_@@_tmpa_tl
+  }
+%    \end{macrocode}
+% \end{macro}
 %
 % \begin{macro}{\@@_cs_swap:NN}
 % Define a helper function to swap two control sequences.
@@ -179,6 +234,85 @@
   }
 %    \end{macrocode}
 % \end{macro}
+%
+%
+% \subsection{Variables Save and Restore}
+%
+% \begin{macro}{\@@_save_tl:N, \@@_restore_tl:N}
+% Save and restore the token lists of the class.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_save_tl:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {tl} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \tl_set:Nx \l_@@_tmpa_tl {\tl_use:c {##1}}
+        \seq_gput_right:No \g_@@_tl_seq {\l_@@_tmpa_tl}
+      }
+  }
+\cs_new_protected:Npn \@@_restore_tl:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {tl} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \seq_gpop_left:NN \g_@@_tl_seq \l_@@_tmpa_tl
+        \tl_set:cn {##1} {\l_@@_tmpa_tl}
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_save_dim:N, \@@_restore_dim:n}
+% Save and restore the dimensions of the class.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_save_dim:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {dim} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \tl_set:Nx \l_@@_tmpa_tl {\dim_use:c {##1}}
+        \seq_gput_right:No \g_@@_dim_seq {\l_@@_tmpa_tl}
+      }
+  }
+\cs_new_protected:Npn \@@_restore_dim:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {dim} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \seq_gpop_left:NN \g_@@_dim_seq \l_@@_tmpa_dim
+        \dim_set:cn {##1} {\l_@@_tmpa_dim}
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_save_cs:N, \@@_restore_cs:N}
+% Create a new control sequence with the transformed name,
+% and save and restore the original control sequence with the new name.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_save_cs:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {cs} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \tl_concat:NNN \l_@@_tmpa_tl \c_@@_cs_name_tl {##1}
+        \cs_set_eq:cc \l_@@_tmpa_tl {##1}
+        \seq_gput_right:No \g_@@_cs_name_seq {\l_@@_tmpa_tl}
+      }
+  }
+\cs_new_protected:Npn \@@_restore_cs:N #1
+  {
+    \@@_prop_get_seq:NnN #1 {cs} \l_@@_csname_seq
+    \seq_map_inline:Nn \l_@@_csname_seq
+      {
+        \seq_gpop_left:NN \g_@@_cs_name_seq \l_@@_tmpa_tl
+        \cs_set_eq:cc {##1} \l_@@_tmpa_tl
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \subsection{Dependences loading}
 % \pkgname{} currently don't have any explicit dependences.
 %
@@ -193,8 +327,20 @@
 %
 % \subsection{Before Loading Class}
 %
+% \begin{macro}{\@@_save_before:N}
+% Save variables before loading class.
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_save_before:N #1
+  {
+    \@@_save_tl:N #1
+    \@@_save_dim:N #1
+    \@@_save_cs:N #1
+  }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\@@_use_before:}
-% These are the things to do before loading class.
+% These are the general things to do before loading class.
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_use_before:
   {
@@ -218,7 +364,7 @@
 % \subsection{After Loading Class}
 %
 % \begin{macro}{\@@_use_after:}
-% These are the things to do after loading class.
+% These are the general things to do after loading class.
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_use_after:
   {
@@ -227,22 +373,75 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \subsection{User Interface}
-% \begin{macro}{\useclass}
-% Load patch class with options.
+% \begin{macro}{\@@_restore_after:N}
+% Restore variables after loading class.
 %    \begin{macrocode}
-\NewDocumentCommand {\useclass} { O{} m }
+\cs_new_protected:Npn \@@_restore_after:N #1
   {
-    \@@_use_before:
-    \@@_use_class:nn {#1} {#2}
-    \@@_use_after:
+    \@@_restore_cs:N #1
+    \@@_restore_dim:N #1
+    \@@_restore_tl:N #1
   }
 %    \end{macrocode}
 % \end{macro}
 %
+%
+% \subsection{User Interface}
+% \begin{macro}{\useclass, \useclass*}
+% Load patch class with options.
+%    \begin{macrocode}
+\NewDocumentCommand {\useclass} { s O{} m }
+  {
+    \bool_if:NTF #1
+      {
+        \@@_prop_get_prop:NnN \c_@@_classes_prop {#3} \l_@@_class_prop
+        \@@_save_before:N \l_@@_class_prop
+        \@@_use_before:
+        \@@_use_class:nn {#2} {#3}
+        \@@_use_after:
+        \@@_restore_after:N \l_@@_class_prop
+      }
+      {
+        \@@_use_before:
+        \@@_use_class:nn {#2} {#3}
+        \@@_use_after:
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Classes Configuration}
+% \begin{variable}{\c_@@_classes_prop}
+% Configuration for classes to restore after loading.
+% The defined property is NOT nested, where values in the prop are token lists but not properties or sequences.
+%    \begin{macrocode}
+\prop_const_from_keyval:Nn \c_@@_classes_prop {
+  l3doc = {
+    tl = {
+      partname,
+    },
+    dim = {
+      textwidth,
+      marginparwidth,
+      oddsidemargin,
+      evensidemargin,
+      parindent,
+      itemindent,
+      parskip,
+    },
+    cs = {
+      list,
+      l@section,
+      l@subsection,
+    },
+  },
+}
+%    \end{macrocode}
+% \end{variable}
+%
 %    \begin{macrocode}
 %</package>
 %    \end{macrocode}
-
+%
 % \end{implementation}
 % \PrintIndex
