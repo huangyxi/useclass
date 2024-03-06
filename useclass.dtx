@@ -69,7 +69,8 @@
 \useclass*[full]{l3doc}
 \usepackage{mdframed}
 
-\providecommand{\pkgname}{\pkg{\jobname}}
+\providecommand{\name}{\jobname}
+\providecommand{\pkgname}{\pkg{\name}}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintIndex
@@ -113,6 +114,31 @@
 % The package \pkgname{} was initially released on 2024-03-05, under the LaTeX Project Public License Version 1.3c^^A
 % \footnote{\url{https://www.latex-project.org/lppl/lppl-1-3c.txt}}
 % or later, and is maintained at \url{https://github.com/huangyxi/useclass}.
+% The latest documentation can be found at
+% \url{https://github.com/huangyxi/useclass/releases/latest/download/useclass.pdf}.
+%
+%
+% \section{Installation}
+%
+% The following are the methods for installing and updating the package.
+% You can choose the method that is most suitable for you.
+%
+% Since this package is tangled from the \file{.dtx} file,
+% the easiest way to install or update the package is to place or replace the \file{\name.sty} file in the same directory as your working document.
+% You can find \file{\name.sty} at GitHub Release^^A
+% \footnote{\url{https://github.com/huangyxi/useclass/releases/latest/download/useclass.sty}}.
+%
+% For a full installation of the package, you can use the \TeX repository manager, such as \TeX{} Live.
+% This method will download the package from CTAN, and install all required files to \TeX{} Directory Structure (TDS).
+% For command-line users, you can use the following command:
+% \begin{verbatim}
+% tlmgr [--usermode] install useclass
+% tlmgr [--usermode] update useclass
+% \end{verbatim}
+%
+% If you're a developer interested in contributing to the project's development,
+% or just want to try the latest features before they are released,
+% you can clone the repository from GitHub, and use either |l3build| or |make| to install the package.
 %
 % \section{Usage}
 %
