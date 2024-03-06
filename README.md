@@ -1,3 +1,8 @@
+[![Latest Document](https://img.shields.io/github/v/release/huangyxi/useclass?label=Docs)](https://github.com/huangyxi/useclass/releases/latest/download/useclass.pdf)
+[![GitHub Release](https://img.shields.io/github/v/release/huangyxi/useclass?label=Release)](https://github.com/huangyxi/useclass/releases/latest)
+[![CTAN](https://img.shields.io/ctan/v/useclass?label=CTAN)](https://www.ctan.org/pkg/useclass)
+
+
 # The `useclass.sty` Package: Load Classes as Packages
 
 ## Introduction
