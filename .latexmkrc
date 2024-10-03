@@ -12,4 +12,4 @@ $pdf_mode = 1;
 
 @default_files = ('useclass.dtx');
 
-$makeindex = "touch %B.ind"; # temporary workaround for issues with l3doc
+$makeindex = "makeindex %O -s gind.ist -o %D %S";
