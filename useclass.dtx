@@ -67,12 +67,14 @@
 \documentclass{article}
 \usepackage{useclass}
 \useclass*[full]{l3doc}
+\RecordChanges
 \usepackage{mdframed}
 
 \providecommand{\name}{\jobname}
 \providecommand{\pkgname}{\pkg{\name}}
 \begin{document}
   \DocInput{\jobname.dtx}
+  \PrintChanges
   \PrintIndex
 \end{document}
 %</driver>
@@ -105,6 +107,8 @@
 % \end{mdframed}
 %
 % \tableofcontents
+%
+% \changes{v1.0}{2024-03-05}{Initial release.}
 %
 % \begin{documentation}
 %
@@ -439,6 +443,7 @@
 %
 % \subsection{Classes Configuration}
 % \begin{variable}{\c_@@_classes_prop}
+% \changes{v1.1}{2024-10-03}{Support \cls{ctex} classes.}
 % Configuration for classes to restore after loading.
 % The defined property is NOT nested, where values in the prop are token lists but not properties or sequences.
 %    \begin{macrocode}
@@ -472,4 +477,3 @@
 %    \end{macrocode}
 %
 % \end{implementation}
-% \PrintIndex

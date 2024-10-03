@@ -9,7 +9,16 @@ $silence_logfile_warnings = 1;
 
 $out_dir = 'build';
 $pdf_mode = 1;
+$show_time = 1;
 
 @default_files = ('useclass.dtx');
 
-$makeindex = "makeindex %O -s gind.ist -o %D %S";
+# Process index
+$makeindex = "makeindex -s gind.ist %O -o %D %S";
+
+# Process glossary (change history)
+add_cus_dep('glo', 'gls', 0, 'makeglo2gls');
+$makeglossaries = makeglossaries;
+sub makeglo2gls {
+	system("makeindex -s gglo.ist -o \"$_[0].gls\" -t \"$_[0].glg\" \"$_[0].glo\"");
+}
