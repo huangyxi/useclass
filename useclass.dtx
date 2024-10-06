@@ -53,6 +53,7 @@
 %<*install>
     \usedir{tex/latex/useclass}
     \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+    \file{\jobname-doc.sty}{\from{\jobname.dtx}{doc-sty}}
   }
 \endbatchfile
 %</install>
@@ -60,14 +61,17 @@
 \fi
 %</internal>
 
-%<package>\NeedsTeXFormat{LaTeX2e}
+%<package|doc-sty>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesExplPackage{useclass}
-%<package>  {[LATEST]}{[DEV]}{Use Classes as Packages} %^^A [L3BUILD_REPLACED_MARK]
+%<doc-sty>\ProvidesExplPackage{useclass-doc}
+%<package|doc-sty>  {[LATEST]}{[DEV]} %^^A [L3BUILD_REPLACED_MARK]
+%<package>  {Use Classes as Packages}
+%<doc-sty>  {The Documentation Adjustments for Package: useclass}
 %<*driver>
 \documentclass{article}
 \usepackage{useclass}
 \useclass*[full]{l3doc}
-\RecordChanges
+\usepackage{useclass-doc}
 \usepackage{mdframed}
 
 \providecommand{\name}{\jobname}
@@ -472,8 +476,61 @@
 %    \end{macrocode}
 % \end{variable}
 %
+% End of package implementation.
 %    \begin{macrocode}
 %</package>
+%    \end{macrocode}
+%
+% \section{Documentation Adjustments}
+%    \begin{macrocode}
+%<*doc-sty>
+%    \end{macrocode}
+%
+% Some of adjustments are derived from the \pkg{fduthesis-doc} package.
+%
+% \subsection{\cls{l3doc} Patches}
+%    \begin{macrocode}
+%<@@=codedoc>
+%    \end{macrocode}
+%
+%
+% Disable ``(\emph{End definition for ...})'' at the end of \env{macro}.
+%    \begin{macrocode}
+\cs_set_eq:NN \@@_macro_end_style:n \use_none:n
+%    \end{macrocode}
+%
+%
+% \begin{macro}{\@@_macro_typeset_one:nN}
+% Patch the \cs{@@_macro_typeset_one:nN} to scale the box if the command is too long.
+%    \begin{macrocode}
+\cs_set_protected:Npn \@@_macro_typeset_one:nN #1#2
+  {
+    \vbox_set:Nn \l_@@_macro_box
+      {
+        \MacroFont
+        \vbox_unpack_drop:N \l_@@_macro_box
+        \hbox_set:Nn \l_tmpa_box
+          { \@@_print_macroname:nN {#1} #2 }
+        \dim_set:Nn \l_tmpa_dim
+          { \marginparwidth - \labelsep - \marginparsep }
+        \dim_compare:nNnT { \box_wd:N \l_tmpa_box } > \l_tmpa_dim
+          {
+            \box_resize_to_wd_and_ht:Nnn \l_tmpa_box
+              { \l_tmpa_dim } { \box_ht:N \l_tmpa_box }
+          }
+        \hbox_overlap_left:n
+          {
+            \box_use:N \l_tmpa_box
+            \skip_horizontal:n { \marginparsep - \labelsep }
+          }
+      }
+    \int_incr:N \l_@@_macro_int
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+%</doc-sty>
 %    \end{macrocode}
 %
 % \end{implementation}
