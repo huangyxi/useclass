@@ -245,12 +245,12 @@
 %    \begin{macrocode}
 % \cs_set_eq:NN \@@_prop_set_from_keyval:Nn \prop_set_from_keyval:Nn
 % \cs_generate_variant:Nn \@@_prop_set_from_keyval:Nn { No }
-\cs_new_protected:Npn \@@_prop_get_prop:NnN #1 #2 #3
+\cs_new_protected:Npn \@@_prop_get_prop:NnN #1#2#3
   {
     \prop_get:NnN #1 {#2} \l_@@_tmpa_tl
     \exp_args:NNo \prop_set_from_keyval:Nn #3 \l_@@_tmpa_tl
   }
-\cs_new_protected:Npn \@@_prop_get_seq:NnN #1 #2 #3
+\cs_new_protected:Npn \@@_prop_get_seq:NnN #1#2#3
   {
     \prop_get:NnN #1 {#2} \l_@@_tmpa_tl
     \exp_args:NNo \seq_set_from_clist:Nn #3 \l_@@_tmpa_tl
@@ -261,7 +261,7 @@
 % \begin{macro}{\@@_cs_swap:NN}
 % Define a helper function to swap two control sequences.
 %    \begin{macrocode}
-\cs_new:Npn \@@_cs_swap:NN #1 #2
+\cs_new:Npn \@@_cs_swap:NN #1#2
   {
     \cs_set_eq:NN \@@_tempa_cs:w #1
     \cs_set_eq:NN #1 #2
@@ -389,7 +389,7 @@
 % \begin{macro}{\@@_use_class:nn}
 % Load class with options.
 %    \begin{macrocode}
-\cs_new_protected:Npn \@@_use_class:nn #1 #2
+\cs_new_protected:Npn \@@_use_class:nn #1#2
   {
     \@fileswithoptions\@clsextension[#1]{#2}
   }
